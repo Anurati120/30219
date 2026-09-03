@@ -1,9 +1,9 @@
 import streamlit as st
 
 # 1. 페이지 설정
-st.set_page_config(page_title="Car Quiz Challenge", page_icon="🏁", layout="centered")
+st.set_page_config(page_title="Car 20-Questions", page_icon="🕵️", layout="centered")
 
-# 2. 디자인 스타일 적용 (고급스러운 다크 테마)
+# 2. 디자인 스타일 적용 (글씨 흰색, 가로형 큰 버튼 디자인 등)
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
@@ -11,146 +11,143 @@ st.markdown("""
     html, body, [class*="css"] {
         font-family: 'Inter', sans-serif;
         background-color: #0b0f19;
-        color: #f3f4f6;
+        color: #ffffff !important;
     }
     .stApp {
         background: radial-gradient(circle at center, #111827, #0b0f19);
     }
+    h1, h2, h3, h4, h5, h6, p, span, label {
+        color: #ffffff !important;
+    }
     .quiz-card {
         background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.15);
         border-radius: 20px;
         padding: 30px;
         backdrop-filter: blur(10px);
         margin-bottom: 20px;
     }
+    /* 버튼 크기를 키우고 가로 배치를 위한 스타일 */
     .stButton>button {
         width: 100%;
-        border-radius: 12px;
-        background: #3b82f6;
+        height: 60px;
+        border-radius: 14px;
+        background: #1f2937;
         color: white;
-        font-weight: 600;
-        padding: 10px;
-        border: none;
+        font-size: 18px;
+        font-weight: 700;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
     }
     .stButton>button:hover {
-        background: #2563eb;
+        background: #3b82f6;
+        border-color: #3b82f6;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# 3. 퀴즈 데이터베이스 준비
-quiz_data = [
-    {
-        "question": "이 차는 포르쉐의 대표적인 후륜구동 스포츠카로, 개구리 눈을 닮은 독특한 헤드램프와 뒤쪽에 엔진이 달린 '리어 엔진' 구조가 특징입니다. 이 차의 이름은?",
-        "options": ["포르쉐 911", "포르쉐 타이칸", "포르쉐 파나메라", "포르쉐 카이엔"],
-        "answer": "포르쉐 911",
-        "hint": "숫자 세 자리고 유명한 경주용 차 계열이에요."
-    },
-    {
-        "question": "이탈리아의 슈퍼카 브랜드로, 황소 엠블렘을 가지고 있으며 '람보르기니'의 V12 플래그십 모델 라인업의 전통을 잇는 모델의 이름은? (예: 아벤타도르의 후속 모델)",
-        "options": ["우라칸", "레부엘토", "우루스", "갈라도"],
-        "answer": "레부엘토",
-        "hint": "라틴어로 '격동하는'이라는 뜻을 가진 플러그인 하이브리드 슈퍼카입니다."
-    },
-    {
-        "question": "현대자동차의 고성능 브랜드 'N'에서 나온 첫 번째 순수 전기 고성능 차로, 트랙 주행에 최적화된 이 모델의 이름은?",
-        "options": ["아이오닉 5 N", "아반떼 N", "벨로스터 N", "쏘나타 N라인"],
-        "answer": "아이오닉 5 N",
-        "hint": "국민 전기차 SUV의 이름을 따왔지만 끝에 알파벳 N이 붙습니다."
-    },
-    {
-        "question": "일론 머스크가 이끄는 테슬라의 플래그십 세단으로, 엄청난 가속력과 자율주행 기술로 유명한 이 차의 이름은?",
-        "options": ["모델 3", "모델 Y", "모델 S", "사이버트럭"],
-        "answer": "모델 S",
-        "hint": "알파벳 S로 시작하는 대형 세단입니다."
-    }
-]
+# 3. 스무고개 대상 자동차 데이터베이스 및 단계별 힌트 (최대 5단계 = 5고개)
+car_game_data = {
+    "answer": "포르쉐 911",
+    "hints": [
+        "1고개: 이 차는 독일에서 태어났습니다.",
+        "2고개: 엔진이 차체 뒤쪽(리어 엔진)에 탑재되어 있습니다.",
+        "3고개: 개구리 눈을 닮은 동그란 헤드램프가 시그니처입니다.",
+        "4고개: 숫자 세 자리로 이루어진 이름이며, 스포츠카의 전설로 불립니다.",
+        "5고개: 포르쉐의 가장 대표적인 정통 후륜구동 스포츠카입니다!"
+    ],
+    "options": ["포르쉐 911", "람보르기니 우라칸", "테슬라 모델 S", "현대 아이오닉 5"]
+}
 
-# 4. 세션 상태 초기화 (점수, 현재 문제 번호, 시작 여부 관리)
+# 4. 세션 상태 초기화
 if 'started' not in st.session_state:
     st.session_state.started = False
-if 'current_q' not in st.session_state:
-    st.session_state.current_q = 0
-if 'score' not in st.session_state:
-    st.session_state.score = 0
-if 'quiz_finished' not in st.session_state:
-    st.session_state.quiz_finished = False
+if 'hint_step' not in st.session_state:
+    st.session_state.hint_step = 0
+if 'game_over' not in st.session_state:
+    st.session_state.game_over = False
+if 'is_success' not in st.session_state:
+    st.session_state.is_success = False
 
-# 5. 화면 구성
-st.title("🏁 Ultimate Car Quiz Challenge")
-st.write("자동차에 대한 지식을 테스트하고 최고점을 노려보세요!")
+# 5. 화면 레이아웃
+st.title("🕵️ 자동차 스무고개 챌린지")
+st.markdown("<p style='color: #d1d5db;'>힌트를 보고 어떤 자동차인지 맞춰보세요! (총 5개의 힌트 제공)</p>", unsafe_allow_html=True)
 st.markdown("---")
 
 # [시작 전 화면]
 if not st.session_state.started:
     st.markdown("""
     <div class="quiz-card" style="text-align: center;">
-        <h2>퀴즈를 시작할 준비가 되셨나요?</h2>
-        <p>총 4문제가 출제되며, 힌트를 보고 알맞은 자동차를 맞히는 게임입니다.</p>
+        <h2>스무고개 게임을 시작합니다!</h2>
+        <p>힌트가 하나씩 늘어날수록 정답을 맞힐 확률이 높아집니다.<br>과연 몇 번 만에 맞힐 수 있을까요?</p>
     </div>
     """, unsafe_allow_html=True)
     
-    if st.button("🚀 퀴즈 시작하기"):
+    if st.button("🚀 게임 시작하기"):
         st.session_state.started = True
         st.rerun()
 
-# [퀴즈 진행 중 화면]
-elif not st.session_state.quiz_finished:
-    q_idx = st.session_state.current_q
-    current_quiz = quiz_data[q_idx]
+# [게임 진행 중 화면]
+elif not st.session_state.game_over:
+    current_step = st.session_state.hint_step
+    max_steps = len(car_game_data["hints"])
     
-    st.subheader(f"문제 {q_idx + 1} / {len(quiz_data)}")
+    # 상단 상태 표시
+    st.markdown(f"### 🎯 현재 진행: {current_step + 1}고개 / 총 {max_steps}고개")
     
-    with st.container():
-        st.markdown(f"""
-        <div class="quiz-card">
-            <h3>{current_quiz['question']}</h3>
-            <p style='color: #60a5fa; font-style: italic;'>💡 힌트: {current_quiz['hint']}</p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    # 보기 선택 라디오 버튼
-    user_choice = st.radio("정답을 선택하세요:", current_quiz['options'], key=f"q_{q_idx}")
-    
-    if st.button("정답 제출하기"):
-        if user_choice == current_quiz['answer']:
-            st.session_state.score += 1
-            st.success("🎉 정답입니다! 멋지네요!")
-        else:
-            st.error(f"❌ 아쉽습니다! 정답은 **{current_quiz['answer']}** 였습니다.")
-        
-        # 다음 문제로 넘어가기 전 잠시 대기 또는 버튼 클릭 유도
-        if st.button("다음 문제로 ➡️"):
-            if st.session_state.current_q < len(quiz_data) - 1:
-                st.session_state.current_q += 1
-                st.rerun()
-            else:
-                st.session_state.quiz_finished = True
-                st.rerun()
-
-# [퀴즈 종료 화면]
-else:
-    st.markdown("""
-    <div class="quiz-card" style="text-align: center;">
-        <h2>🏆 퀴즈가 종료되었습니다!</h2>
+    # 힌트 카드 박스
+    hints_so_far = "<br>".join(car_game_data["hints"][:current_step + 1])
+    st.markdown(f"""
+    <div class="quiz-card">
+        <h4>💡 공개된 힌트 목록</h4>
+        <p style="font-size: 18px; line-height: 1.6;">{hints_so_far}</p>
     </div>
     """, unsafe_allow_html=True)
     
-    total = len(quiz_data)
-    score = st.session_state.score
+    st.markdown("### 정답을 선택하세요 (가로 배치)")
     
-    st.metric(label="최종 점수", value=f"{score} / {total}")
+    # 가로(세 개 혹은 네 개의 열)로 버튼 배치
+    cols = st.columns(len(car_game_data["options"]))
     
-    if score == total:
+    for i, opt in enumerate(car_game_data["options"]):
+        with cols[i]:
+            if st.button(opt, key=f"opt_{i}"):
+                if opt == car_game_data["answer"]:
+                    st.session_state.game_over = True
+                    st.session_state.is_success = True
+                    st.rerun()
+                else:
+                    # 틀렸을 때 힌트를 하나 더 늘림 (마지막 힌트까지 다 썼는데 틀리면 게임 오버)
+                    if st.session_state.hint_step < max_steps - 1:
+                        st.session_state.hint_step += 1
+                        st.warning("❌ 틀렸습니다! 다음 힌트가 열립니다.")
+                        st.rerun()
+                    else:
+                        st.session_state.game_over = True
+                        st.session_state.is_success = False
+                        st.rerun()
+
+# [게임 종료 화면 (성공 또는 실패)]
+else:
+    if st.session_state.is_success:
         st.balloons()
-        st.success("만세! 모든 문제를 맞혔습니다. 자동차 박사님이시네요! 🏅")
+        st.markdown("""
+        <div class="quiz-card" style="text-align: center;">
+            <h1 style="color: #4ade80 !important;">🎉 정답입니다!</h1>
+            <p style="font-size: 20px;">훌륭합니다! 완벽하게 차를 맞히셨네요!</p>
+        </div>
+        """, unsafe_allow_html=True)
     else:
-        st.info("수고하셨습니다! 다시 도전해서 만점에 도전해 보세요.")
+        st.markdown("""
+        <div class="quiz-card" style="text-align: center;">
+            <h1 style="color: #f87171 !important;">😢 아쉽게도 기회를 모두 소진했습니다.</h1>
+            <p style="font-size: 20px;">정답은 바로 <b>포르쉐 911</b> 이었습니다!</p>
+        </div>
+        """, unsafe_allow_html=True)
         
-    if st.button("🔄 처음부터 다시 하기"):
+    if st.button("🔄 다시 도전하기"):
         st.session_state.started = False
-        st.session_state.current_q = 0
-        st.session_state.score = 0
-        st.session_state.quiz_finished = False
+        st.session_state.hint_step = 0
+        st.session_state.game_over = False
+        st.session_state.is_success = False
         st.rerun()
