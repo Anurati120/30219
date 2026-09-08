@@ -4,7 +4,7 @@ import random
 # 1. 페이지 설정
 st.set_page_config(page_title="Ultimate Car 20-Questions", page_icon="🏎️", layout="centered")
 
-# 2. 프리미엄 다크 네온 디자인 CSS 적용
+# 2. 프리미엄 다크 네온 디자인 & 컴팩트 버튼 CSS 적용
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap');
@@ -23,59 +23,59 @@ st.markdown("""
     .hero-box {
         background: linear-gradient(135deg, rgba(31, 41, 55, 0.4), rgba(17, 24, 39, 0.7));
         border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 24px;
-        padding: 35px;
+        border-radius: 20px;
+        padding: 25px;
         backdrop-filter: blur(16px);
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-        margin-bottom: 25px;
+        margin-bottom: 20px;
     }
     .success-box {
         background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.3));
         border: 2px solid #10b981;
-        border-radius: 24px;
-        padding: 40px;
+        border-radius: 20px;
+        padding: 30px;
         text-align: center;
         backdrop-filter: blur(16px);
         box-shadow: 0 20px 40px rgba(16, 185, 129, 0.2);
-        margin-bottom: 25px;
+        margin-bottom: 20px;
     }
     .hint-box {
         background: rgba(15, 23, 42, 0.8);
         border-left: 5px solid #3b82f6;
         border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 20px;
+        padding: 15px 20px;
+        margin-bottom: 15px;
         box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);
     }
-    /* 보기 버튼 스타일 */
+    /* 스크롤 없이 한눈에 들어오도록 버튼 높이와 여백 컴팩트 최적화 */
     .stButton>button {
         width: 100%;
-        height: 55px;
-        border-radius: 12px;
+        height: 48px;
+        border-radius: 10px;
         background: linear-gradient(135deg, #1f2937, #111827);
         color: #ffffff;
-        font-size: 15px;
+        font-size: 14px;
         font-weight: 600;
         border: 1px solid rgba(255, 255, 255, 0.15);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        margin-bottom: 8px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        margin-bottom: 6px;
     }
     .stButton>button:hover {
         background: linear-gradient(135deg, #3b82f6, #2563eb);
         border-color: #60a5fa;
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
     }
 </style>
 """, unsafe_allow_html=True)
 
-# 3. 전체 명차 마스터 풀 (오답 구성용 풍부한 차량 리스트)
+# 3. 전체 명차 마스터 풀 (오답 구성용 차량 리스트)
 all_car_pool = [
     "포르쉐 911", "람보르기니 우라칸", "테슬라 모델 S", "현대 아이오닉 5 N",
     "부가티 치론", "BMW M5", "메르세데스-벤츠 G바겐", "현대 아반떼 N",
     "롤스로이스 팬텀", "미니 쿠퍼", "페라리 F8", "아우디 R8",
-    "맥라렌 720S", "포르쉐 타이칸", "벤틀리 컨티넨탈 GT", "아반떼 N",
+    "맥라렌 720S", "포르쉐 타이칸", "벤틀리 컨티넨탈 GT",
     "지프 랭글러", "토요타 수프라", "포드 머스탱", "쉐보레 콜벳"
 ]
 
@@ -192,32 +192,32 @@ if 'hint_step' not in st.session_state:
     st.session_state.hint_step = 0
 if 'solved_current' not in st.session_state:
     st.session_state.solved_current = False
-if 'score' not in st.session_state:
-    st.session_state.score = 0
+if 'total_score' not in st.session_state:
+    st.session_state.total_score = 0
 if 'game_finished' not in st.session_state:
     st.session_state.game_finished = False
 
 # 매 문제마다 정답을 포함한 10개의 고유 보기를 랜덤 생성하는 함수
 def get_random_options(correct_answer):
     other_cars = [car for car in all_car_pool if car != correct_answer]
-    # 오답 중에서 무작위로 9개를 뽑고 정답을 포함한 뒤 섞음
     selected_others = random.sample(other_cars, 9)
     options = selected_others + [correct_answer]
     random.shuffle(options)
     return options
 
 # 6. 화면 레이아웃 구성
-st.markdown("<h1 style='text-align: center; font-weight: 800; letter-spacing: -1px;'>🏎️ ULTIMATE CAR 20-QUESTIONS</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #9ca3af; font-size: 16px; margin-bottom: 30px;'>매번 바뀌는 10가지 보기 중에서 힌트를 조합해 정답을 찾아보세요!</p>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; font-weight: 800; font-size: 28px; margin-bottom: 5px;'>🏎️ ULTIMATE CAR 20-QUESTIONS</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #9ca3af; font-size: 14px; margin-bottom: 20px;'>힌트를 적게 볼수록 더 높은 점수를 획득합니다 (문제당 최대 10점)</p>", unsafe_allow_html=True)
 
 # [시작 전 화면]
 if not st.session_state.started:
     st.markdown("""
     <div class="hero-box" style="text-align: center;">
-        <h2 style="color: #60a5fa !important; margin-bottom: 15px;">챌린지 준비 완료!</h2>
-        <p style="font-size: 17px; line-height: 1.6; color: #d1d5db;">
-            총 <b>10문제</b>의 프리미엄 자동차 스무고개!<br>
-            문제를 맞힐 때마다 보기 구성이 새롭게 무작위로 변경됩니다.
+        <h3 style="color: #60a5fa !important; margin-bottom: 10px;">챌린지 준비 완료!</h3>
+        <p style="font-size: 15px; line-height: 1.6; color: #d1d5db;">
+            총 <b>10문제</b> (총점 100점 만점)<br>
+            ⚠️ <b>힌트를 볼 때마다 2점씩 감점됩니다!</b> (기본 10점 시작)<br>
+            신중하게 힌트를 열어보고 최고점을 노려보세요!
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -227,7 +227,7 @@ if not st.session_state.started:
         st.session_state.current_q_idx = 0
         st.session_state.hint_step = 0
         st.session_state.solved_current = False
-        st.session_state.score = 0
+        st.session_state.total_score = 0
         st.session_state.game_finished = False
         st.rerun()
 
@@ -246,29 +246,32 @@ elif not st.session_state.game_finished:
         # 상단 상태 정보 표시
         c1, c2 = st.columns(2)
         with c1:
-            st.markdown(f"#### 🎯 문제: {st.session_state.current_q_idx + 1} / {len(quiz_list)}")
+            st.markdown(f"<p style='font-size: 15px; font-weight: 600; margin:0;'>🎯 문제: {st.session_state.current_q_idx + 1} / {len(quiz_list)}</p>", unsafe_allow_html=True)
         with c2:
-            st.markdown(f"#### 🔍 공개된 힌트: {st.session_state.hint_step + 1}개 / 총 {max_hints}개")
+            # 현재 획득 가능한 예상 점수 계산 (최대 10점 - 힌트 오픈당 2점 감점)
+            current_possible_score = max(2, 10 - (st.session_state.hint_step * 2))
+            st.markdown(f"<p style='font-size: 15px; font-weight: 600; margin:0; text-align: right; color: #34d399;'>⭐ 현재 배점: {current_possible_score}점</p>", unsafe_allow_html=True)
         
+        st.markdown("<div style='margin: 10px 0;'></div>", unsafe_allow_html=True)
+
         # 누적된 힌트 출력 박스
-        hints_so_far = "<br><br>".join(current_quiz["hints"][:st.session_state.hint_step + 1])
+        hints_so_far = "<br>".join(current_quiz["hints"][:st.session_state.hint_step + 1])
         st.markdown(f"""
         <div class="hint-box">
-            <h4 style="color: #60a5fa !important; margin-top: 0; margin-bottom: 12px;">💡 스무고개 힌트 현황</h4>
-            <p style="font-size: 17px; line-height: 1.6; margin: 0;">{hints_so_far}</p>
+            <p style="font-size: 14px; color: #60a5fa !important; font-weight: 700; margin-bottom: 6px;">💡 스무고개 힌트 현황 (힌트 추가 시 -2점)</p>
+            <p style="font-size: 14px; line-height: 1.5; margin: 0;">{hints_so_far}</p>
         </div>
         """, unsafe_allow_html=True)
         
         # 다음 힌트 보기 버튼 (최대 힌트가 아닐 때만)
         if st.session_state.hint_step < max_hints - 1:
-            if st.button("💡 다음 힌트 보기 (+1 고개 열기)"):
+            if st.button("💡 다음 힌트 보기 (+1 고개 열기 / 점수 -2점)"):
                 st.session_state.hint_step += 1
                 st.rerun()
-            st.markdown("<div style='margin: 15px 0;'></div>", unsafe_allow_html=True)
         
-        st.markdown("### 🚘 새롭게 섞인 10개의 보기 중에서 정답을 선택하세요")
+        st.markdown("<p style='font-size: 14px; font-weight: 700; margin: 8px 0 4px 0;'>🚘 10개의 보기 중 정답을 선택하세요:</p>", unsafe_allow_html=True)
         
-        # 매번 무작위로 바뀐 10개의 보기를 2열 구조로 깔끔하게 배치
+        # 2열 구조로 정렬
         options = st.session_state.current_options
         row_size = 2
         for i in range(0, len(options), row_size):
@@ -279,21 +282,24 @@ elif not st.session_state.game_finished:
                     with cols[j]:
                         if st.button(opt, key=f"opt_{st.session_state.current_q_idx}_{i+j}"):
                             if opt == current_quiz["answer"]:
+                                # 정답 시 이번 문제 획득 점수 계산 후 총점에 반영
+                                earned_score = max(2, 10 - (st.session_state.hint_step * 2))
+                                st.session_state.earned_score = earned_score
+                                st.session_state.total_score += earned_score
                                 st.session_state.solved_current = True
-                                st.session_state.score += 1
                                 st.rerun()
                             else:
                                 st.error("❌ 틀렸습니다! 다른 차이거나 힌트를 더 확인해보세요.")
 
     # [상태 B] 정답을 맞힌 경우 독립된 '정답 화면' (폭죽 효과 발동)
     else:
-        st.snow() # 폭죽 및 축하 파티클 효과
+        st.balloons() # 폭죽/축하 파티클 효과
+        earned = st.session_state.earned_score
         st.markdown(f"""
         <div class="success-box">
-            <h1 style="color: #34d399 !important; font-size: 42px; margin-bottom: 10px;">🎆 정답 폭죽 발사!</h1>
-            <p style="font-size: 22px; color: #f3f4f6; margin-bottom: 5px;">이번 문제의 정확한 정답은</p>
-            <h2 style="color: #ffffff !important; font-size: 32px; font-weight: 800; text-decoration: underline; margin-top: 0;">{current_quiz['answer']}</h2>
-            <p style="font-size: 16px; color: #9ca3af; margin-top: 15px;">완벽한 추리력입니다! 아주 훌륭해요.</p>
+            <h2 style="color: #34d399 !important; font-size: 30px; margin-bottom: 8px;">🎆 정답입니다!</h2>
+            <p style="font-size: 16px; color: #f3f4f6; margin-bottom: 4px;">이번 문제 정답: <b style="color: #ffffff; text-decoration: underline;">{current_quiz['answer']}</b></p>
+            <h3 style="color: #facc15 !important; font-size: 24px; margin-top: 10px;">획득 점수: +{earned}점</h3>
         </div>
         """, unsafe_allow_html=True)
         
@@ -309,31 +315,33 @@ elif not st.session_state.game_finished:
                 st.session_state.game_finished = True
                 st.rerun()
 
-# [모든 퀴즈 완료 최종 화면]
+# [모든 퀴즈 완료 최종 결과 화면]
 else:
     st.markdown("""
     <div class="hero-box" style="text-align: center;">
-        <h1 style="color: #4ade80 !important; font-size: 36px; margin-bottom: 10px;">🏆 스무고개 챌린지 완주!</h1>
-        <p style="font-size: 18px; color: #d1d5db;">모든 10지선다 명차 추리 미션을 완벽하게 마쳤습니다.</p>
+        <h2 style="color: #4ade80 !important; font-size: 26px; margin-bottom: 8px;">🏆 스무고개 챌린지 완주!</h2>
+        <p style="font-size: 15px; color: #d1d5db;">모든 10지선다 명차 추리 미션을 완벽하게 마쳤습니다.</p>
     </div>
     """, unsafe_allow_html=True)
     
-    total_q = len(quiz_list)
-    final_score = st.session_state.score
+    final_score = st.session_state.total_score
+    max_possible_total = len(quiz_list) * 10
     
-    st.metric(label="최종 맞힌 문제 수", value=f"{final_score} / {total_q}")
+    st.metric(label="최종 누적 점수", value=f"{final_score}점 / {max_possible_total}점 만점")
     
-    if final_score == total_q:
-        st.snow()
-        st.success("만점 달성! 이 정도면 명실상부한 자동차 최고 마스터 박사님입니다! 🏅✨")
+    if final_score >= 90:
+        st.balloons()
+        st.success("🌟 완벽한 명차 마스터! 힌트를 거의 쓰지 않고 완벽한 통찰력을 보여주셨습니다!")
+    elif final_score >= 70:
+        st.info("🚗 훌륭한 자동차 전문가 수준입니다! 날카로운 추리력이 돋보여요.")
     else:
-        st.info("고생하셨습니다! 다시 도전해서 전 문제 만점에 도전해 보세요.")
+        st.info("👍 수고하셨습니다! 힌트를 줄이고 다음 번에 더 높은 고득점에 도전해 보세요!")
         
     if st.button("🔄 처음부터 다시 도전하기"):
         st.session_state.started = False
         st.session_state.current_q_idx = 0
         st.session_state.hint_step = 0
         st.session_state.solved_current = False
-        st.session_state.score = 0
+        st.session_state.total_score = 0
         st.session_state.game_finished = False
         st.rerun()
