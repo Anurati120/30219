@@ -1,9 +1,10 @@
 import streamlit as st
+import random
 
 # 1. 페이지 설정
 st.set_page_config(page_title="Ultimate Car 20-Questions", page_icon="🏎️", layout="centered")
 
-# 2. 100배 더 멋진 프리미엄 다크 네온 디자인 CSS 적용
+# 2. 프리미엄 다크 네온 디자인 CSS 적용
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap');
@@ -46,7 +47,7 @@ st.markdown("""
         margin-bottom: 20px;
         box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);
     }
-    /* 10개 보기가 예쁘게 들어가도록 버튼 디자인 조정 */
+    /* 보기 버튼 스타일 */
     .stButton>button {
         width: 100%;
         height: 55px;
@@ -69,14 +70,16 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 3. 마스터 전용 10지선다 풀 공통 보기 풀 (전체 문제에서 공유하거나 각자 구성)
-master_options = [
+# 3. 전체 명차 마스터 풀 (오답 구성용 풍부한 차량 리스트)
+all_car_pool = [
     "포르쉐 911", "람보르기니 우라칸", "테슬라 모델 S", "현대 아이오닉 5 N",
     "부가티 치론", "BMW M5", "메르세데스-벤츠 G바겐", "현대 아반떼 N",
-    "롤스로이스 팬텀", "미니 쿠퍼"
+    "롤스로이스 팬텀", "미니 쿠퍼", "페라리 F8", "아우디 R8",
+    "맥라렌 720S", "포르쉐 타이칸", "벤틀리 컨티넨탈 GT", "아반떼 N",
+    "지프 랭글러", "토요타 수프라", "포드 머스탱", "쉐보레 콜벳"
 ]
 
-# 4. 10개의 자동차 스무고개 문제 데이터베이스 (보기 10개씩 완비)
+# 4. 10개의 자동차 스무고개 문제 데이터베이스
 quiz_list = [
     {
         "answer": "포르쉐 911",
@@ -86,8 +89,7 @@ quiz_list = [
             "3고개: 개구리 눈을 연상시키는 동그란 헤드램프가 수십 년째 이어져 내려옵니다.",
             "4고개: 숫자 세 자리로 이루어진 이름을 가지고 있으며 후륜구동의 교과서입니다.",
             "5고개: 포르쉐의 정체성 그 자체인 베스트셀링 후륜구동 스포츠카입니다!"
-        ],
-        "options": master_options
+        ]
     },
     {
         "answer": "현대 아이오닉 5 N",
@@ -97,8 +99,7 @@ quiz_list = [
             "3고개: SUV 패밀리카의 형태를 지녔지만, 서킷을 폭격하는 괴물 성능을 냅니다.",
             "4고개: 현대차의 고성능 N 브랜드를 상징하는 알파벳이 붙어 있습니다.",
             "5고개: 가짜 변속 충격과 사운드로 가슴을 뛰게 하는 전기 SUV입니다!"
-        ],
-        "options": master_options
+        ]
     },
     {
         "answer": "람보르기니 우라칸",
@@ -108,8 +109,7 @@ quiz_list = [
             "3고개: 스페인어로 '허리케인'이라는 뜻의 이름을 가지고 있습니다.",
             "4고개: 이전 모델인 가야르도의 성공을 이어받은 주력 베스트셀링 슈퍼카입니다.",
             "5고개: 람보르기니를 상징하는 10기통 미드십 슈퍼카입니다!"
-        ],
-        "options": master_options
+        ]
     },
     {
         "answer": "테슬라 모델 S",
@@ -119,8 +119,7 @@ quiz_list = [
             "3고개: 하이퍼카를 위협하는 미친 듯한 가속력(Plaid 버전)으로 유명합니다.",
             "4고개: 거대한 중앙 디스플레이와 반자율주행의 선구자격인 모델입니다.",
             "5고개: 알파벳 S가 붙는 테슬라의 대형 럭셔리 전기 세단입니다!"
-        ],
-        "options": master_options
+        ]
     },
     {
         "answer": "부가티 치론",
@@ -130,8 +129,7 @@ quiz_list = [
             "3고개: 시속 400km/h를 가볍게 돌파하는 세계 최고 속도 기록의 아이콘입니다.",
             "4고개: 8리터 16기통(W16) 이라는 거대한 엔진을 탑재했습니다.",
             "5고개: 베이론의 뒤를 이어 지구상에서 가장 비싼 차 중 하나로 꼽힙니다!"
-        ],
-        "options": master_options
+        ]
     },
     {
         "answer": "BMW M5",
@@ -141,8 +139,7 @@ quiz_list = [
             "3고개: 패밀리와 서킷 주행을 동시에 만족시키는 '고성능 세단의 교과서'입니다.",
             "4고개: 강력한 8기통 트윈터보 엔진과 지능형 4륜구동 시스템을 탑재했습니다.",
             "5고개: 알파벳 M과 숫자 5가 조합된 전설적인 스포츠 세단입니다!"
-        ],
-        "options": master_options
+        ]
     },
     {
         "answer": "메르세데스-벤츠 G바겐",
@@ -152,8 +149,7 @@ quiz_list = [
             "3고개: 셀럽들과 연예인들이 가장 사랑하는 드림 카 중 하나입니다.",
             "4고개: 험준한 산악 지형을 탱크처럼 돌파하는 강력한 4륜구동 시스템을 갖췄습니다.",
             "5고개: 알파벳 G로 시작하는 벤츠의 최고급 오프로더입니다!"
-        ],
-        "options": master_options
+        ]
     },
     {
         "answer": "현대 아반떼 N",
@@ -163,8 +159,7 @@ quiz_list = [
             "3고개: 운전자의 아드레날린을 폭발시키는 팝콘 배기음이 시그니처입니다.",
             "4고개: 현대차의 고성능 기술력이 집약된 가성비 끝판왕 스포츠 세단입니다.",
             "5고개: 국산 준중형 세단 베이스에 N 문호가 붙은 이 차의 이름은?"
-        ],
-        "options": master_options
+        ]
     },
     {
         "answer": "롤스로이스 팬텀",
@@ -174,8 +169,7 @@ quiz_list = [
             "3고개: 세상에서 가장 조용하고 안락한, '움직이는 궁전'으로 불립니다.",
             "4고개: 문이 뒤로 열리는 '코치 도어' 방식을 채택하고 있습니다.",
             "5고개: 롤스로이스의 기함(플래그십)을 상징하는 거대한 세단입니다!"
-        ],
-        "options": master_options
+        ]
     },
     {
         "answer": "미니 쿠퍼",
@@ -185,8 +179,7 @@ quiz_list = [
             "3고개: 카트처럼 민첩하고 짜릿한 핸들링 성능으로 '고카트 필링'을 선사합니다.",
             "4고개: 영국 국기(유니언잭) 디자인을 후미등이나 루프에 자주 활용합니다.",
             "5고개: 이름 그대로 '작고 귀여운' 매력을 가진 프리미엄 해치백입니다!"
-        ],
-        "options": master_options
+        ]
     }
 ]
 
@@ -204,9 +197,18 @@ if 'score' not in st.session_state:
 if 'game_finished' not in st.session_state:
     st.session_state.game_finished = False
 
+# 매 문제마다 정답을 포함한 10개의 고유 보기를 랜덤 생성하는 함수
+def get_random_options(correct_answer):
+    other_cars = [car for car in all_car_pool if car != correct_answer]
+    # 오답 중에서 무작위로 9개를 뽑고 정답을 포함한 뒤 섞음
+    selected_others = random.sample(other_cars, 9)
+    options = selected_others + [correct_answer]
+    random.shuffle(options)
+    return options
+
 # 6. 화면 레이아웃 구성
 st.markdown("<h1 style='text-align: center; font-weight: 800; letter-spacing: -1px;'>🏎️ ULTIMATE CAR 20-QUESTIONS</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #9ca3af; font-size: 16px; margin-bottom: 30px;'>10개의 보기 중에서 힌트를 조합해 정답을 찾아보세요!</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #9ca3af; font-size: 16px; margin-bottom: 30px;'>매번 바뀌는 10가지 보기 중에서 힌트를 조합해 정답을 찾아보세요!</p>", unsafe_allow_html=True)
 
 # [시작 전 화면]
 if not st.session_state.started:
@@ -215,7 +217,7 @@ if not st.session_state.started:
         <h2 style="color: #60a5fa !important; margin-bottom: 15px;">챌린지 준비 완료!</h2>
         <p style="font-size: 17px; line-height: 1.6; color: #d1d5db;">
             총 <b>10문제</b>의 프리미엄 자동차 스무고개!<br>
-            각 문제마다 <b>10개의 보기</b>가 주어지니 신중하게 추리해 보세요.
+            문제를 맞힐 때마다 보기 구성이 새롭게 무작위로 변경됩니다.
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -234,6 +236,11 @@ elif not st.session_state.game_finished:
     current_quiz = quiz_list[st.session_state.current_q_idx]
     max_hints = len(current_quiz["hints"])
     
+    # 세션에 현재 문제의 10개 보기가 없으면 새로 생성하여 저장
+    if 'current_options' not in st.session_state or st.session_state.get('last_q_idx') != st.session_state.current_q_idx:
+        st.session_state.current_options = get_random_options(current_quiz["answer"])
+        st.session_state.last_q_idx = st.session_state.current_q_idx
+
     # [상태 A] 아직 정답을 못 맞힌 경우 (문제 풀이 화면)
     if not st.session_state.solved_current:
         # 상단 상태 정보 표시
@@ -259,10 +266,10 @@ elif not st.session_state.game_finished:
                 st.rerun()
             st.markdown("<div style='margin: 15px 0;'></div>", unsafe_allow_html=True)
         
-        st.markdown("### 🚘 10개의 보기 중에서 정답을 선택하세요")
+        st.markdown("### 🚘 새롭게 섞인 10개의 보기 중에서 정답을 선택하세요")
         
-        # 10개의 보기를 2열(또는 5열)로 배치하여 깔끔하게 정렬 (2열 x 5행 구조)
-        options = current_quiz["options"]
+        # 매번 무작위로 바뀐 10개의 보기를 2열 구조로 깔끔하게 배치
+        options = st.session_state.current_options
         row_size = 2
         for i in range(0, len(options), row_size):
             cols = st.columns(row_size)
@@ -278,13 +285,13 @@ elif not st.session_state.game_finished:
                             else:
                                 st.error("❌ 틀렸습니다! 다른 차이거나 힌트를 더 확인해보세요.")
 
-    # [상태 B] 정답을 맞힌 경우 독립된 '정답 화면' (Celebration View)
+    # [상태 B] 정답을 맞힌 경우 독립된 '정답 화면' (폭죽 효과 발동)
     else:
-        st.balloons()
+        st.snow() # 폭죽 및 축하 파티클 효과
         st.markdown(f"""
         <div class="success-box">
-            <h1 style="color: #34d399 !important; font-size: 42px; margin-bottom: 10px;">🎉 정답입니다!</h1>
-            <p style="font-size: 22px; color: #f3f4f6; margin-bottom: 5px;">이번 문제의 정답은</p>
+            <h1 style="color: #34d399 !important; font-size: 42px; margin-bottom: 10px;">🎆 정답 폭죽 발사!</h1>
+            <p style="font-size: 22px; color: #f3f4f6; margin-bottom: 5px;">이번 문제의 정확한 정답은</p>
             <h2 style="color: #ffffff !important; font-size: 32px; font-weight: 800; text-decoration: underline; margin-top: 0;">{current_quiz['answer']}</h2>
             <p style="font-size: 16px; color: #9ca3af; margin-top: 15px;">완벽한 추리력입니다! 아주 훌륭해요.</p>
         </div>
@@ -317,7 +324,7 @@ else:
     st.metric(label="최종 맞힌 문제 수", value=f"{final_score} / {total_q}")
     
     if final_score == total_q:
-        st.balloons()
+        st.snow()
         st.success("만점 달성! 이 정도면 명실상부한 자동차 최고 마스터 박사님입니다! 🏅✨")
     else:
         st.info("고생하셨습니다! 다시 도전해서 전 문제 만점에 도전해 보세요.")
